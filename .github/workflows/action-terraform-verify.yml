@@ -10,9 +10,9 @@ permissions:
   contents: read
 
 jobs:
-  validate-fmt:
+  validate:
     runs-on: ubuntu-latest
-    name: Terraform fmt check
+    name: Terraform validation
     outputs:
       CHECK_STATUS: "${{ env.CHECK_STATUS }}"
     steps:
@@ -28,6 +28,11 @@ jobs:
         uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: 1.2.4
+      - name: Terraform init
+        run: |
+          cd infrastructure
+          terraform init
+          cd ..
       - name: Validate Terraform fmt (added_modified)
         run: |
           set +e
@@ -47,6 +52,21 @@ jobs:
               fi
             fi
           done
+      - name: Validate Terraform configuration
+        run: |
+          cd infrastructure
+          terraform validate
+          cd ..
+      - name: Install TFLint
+        run: |
+          curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
+          tflint --version
+      - name: Run TFLint
+        run: |
+          cd infrastructure
+          tflint --init
+          tflint
+          cd ..
       - name: Process check
         if: always()
         run: exit $CHECK_STATUS
