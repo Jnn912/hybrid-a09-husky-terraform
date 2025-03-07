@@ -7,6 +7,8 @@ resource "azurerm_resource_group" "example" {
   location = "East US"
 }
 
+# This is a test comment added on 2025-03-06
+
 resource "azurerm_storage_account" "example" {
   name                     = "examplestorageaccount"
   resource_group_name      = azurerm_resource_group.example.name
